@@ -18,6 +18,9 @@
 #include    "token.h"
 #include    "vector.h"
 
+static const char *root_filename = 0;
+
+
 extern const char *get_filename (void);
 extern unsigned long get_line_number (void);
 
@@ -625,7 +628,7 @@ static void handler_include (char **pp) {
             goto success;
         }
         
-        if ((p = strrchr (filename, '/'))) {
+        if ((p = strrchr (root_filename, '/'))) {
         
             buf = xmalloc ((p - filename) + 1 + strlen (temp) + 1);
             sprintf (buf, "%.*s/%s", (int) (p - filename), filename, temp);
@@ -649,7 +652,7 @@ static void handler_include (char **pp) {
         
         if (strncmp (path, "./", 2) == 0 || strncmp (path, "../", 3) == 0) {
         
-            char *p = xstrdup (filename), *end;
+            char *p = xstrdup (root_filename), *end;
             
             if ((end = strrchr (p, '/'))) {
             
@@ -814,6 +817,10 @@ int preprocess (const char *filename) {
     satisfy = 0;
     
     memset (&cond_stack, 0, sizeof (cond_stack));
+    
+    if (!root_filename) {
+        root_filename = filename;
+    }
     
     /*
     fprintf (state->ofp, "# 1 \"%s\"\n", filename);
@@ -1065,6 +1072,8 @@ int preprocess (const char *filename) {
         }
     
     }
+    
+    root_filename = 0;
     
     load_line_destory_internal_data (vec_pop (&internal_lines));
     fprintf (state->ofp, "\n");
