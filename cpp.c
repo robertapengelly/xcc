@@ -571,7 +571,7 @@ static void handler_include (char **pp) {
     struct vector old_cond_stack = { 0 };
     int old_enable, old_satisfy;
     
-    int result;
+    int result = -2;
     unsigned long i;
     
     *pp = skip_whitespace (*pp);
@@ -617,13 +617,13 @@ static void handler_include (char **pp) {
     
     get_filename_and_line_number (&filename, &line_number);
     
-    if (!(result = preprocess (temp))) {
-        goto success;
-    }
-    
     if (local_first) {
     
         char *p;
+        
+        if (!(result = preprocess (temp))) {
+            goto success;
+        }
         
         if ((p = strrchr (filename, '/'))) {
         
@@ -715,7 +715,7 @@ static void handler_include (char **pp) {
         saved_ch = *(++(*pp));
         **pp = '\0';
         
-        report_line_at (filename, line_number, REPORT_FATAL_ERROR, start_p, temp - 1, "%s not found", fn);
+        report_line_at (filename, line_number, REPORT_FATAL_ERROR, start_p, temp, "%s not found", fn);
     
     }
     
@@ -777,13 +777,6 @@ static void handler_warning (char **pp) {
     report_line_at (get_filename (), get_line_number (), REPORT_WARNING, start_p, skip_whitespace (start_p + 1), "#error %s", *pp);
     
     *p1 = saved_ch;
-    ignore_rest_of_line (pp);
-
-}
-
-static void handler_pragma (char **pp) {
-
-    /*report_at (NULL, 0, REPORT_INTERNAL_ERROR, "%s", __func__);*/
     ignore_rest_of_line (pp);
 
 }
@@ -1100,8 +1093,6 @@ static struct special special_table[] = {
     {   "warning",      handler_warning     },
     
     {   "include",      handler_include     },
-    {   "pragma",       handler_pragma      },
-    
     {   0,              0                   }
 
 };
