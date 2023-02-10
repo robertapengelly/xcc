@@ -351,6 +351,7 @@ static struct punct punct_table[] = {
     
     {   "!",        TOK_NOT         },
     {   "#",        TOK_HASH        },
+    {   ";",        TOK_SEMI        },
     {   ",",        TOK_COMMA       },
     {   "{",        TOK_LBRACE      },
     {   "}",        TOK_RBRACE      },

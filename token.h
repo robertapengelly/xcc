@@ -37,6 +37,7 @@ enum token_kind {
     
     TOK_NOT,
     TOK_HASH,
+    TOK_SEMI,
     TOK_COMMA,
     TOK_CONCAT,
     TOK_LBRACE,

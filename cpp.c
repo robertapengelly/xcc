@@ -868,6 +868,7 @@ int preprocess (const char *filename) {
         
         while (line <= line_end) {
         
+            char *temp;
             tok = get_token (start_p, &line);
             
             if (tok->kind == TOK_EOL) {
@@ -883,27 +884,32 @@ int preprocess (const char *filename) {
                 }
                 
                 ident += 4;
+                fprintf (state->ofp, "\n");
                 
-                if (*line) {
+                line = skip_whitespace (line);
                 
-                    fprintf (state->ofp, "\n");
-                    
+                if (code_started) {
+                
                     if (*line == '\n') {
-                        line++;
+                    
+                        line = skip_whitespace (line + 1);
+                        fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number () + 1, filename);
+                    
+                    } else {
+                        fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number (), filename);
                     }
                 
                 }
                 
-                if (code_started) {
-                    fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number () + 1, filename);
-                }
-                
+                at_bol = 1;
                 continue;
             
             }
             
             if (tok->kind == TOK_RBRACE) {
             
+                int at_bol1 = at_bol;
+                
                 if (*start_p != '}') {
                 
                     at_bol = 1;
@@ -921,7 +927,7 @@ int preprocess (const char *filename) {
                 }
                 
                 if (code_started) {
-                    fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number () - 1, filename);
+                    fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number (), filename);
                 }
                 
                 if (at_bol) {
@@ -930,16 +936,7 @@ int preprocess (const char *filename) {
                     fprintf (state->ofp, "%s", tok->ident);
                 }
                 
-                if (*line && *line != '\n') {
-                
-                    line = skip_whitespace (line);
-                    
-                    if (*line && *line != ';') {
-                        fprintf (state->ofp, "\n");
-                    }
-                
-                }
-                
+                at_bol = at_bol1;
                 continue;
             
             }
@@ -1040,13 +1037,30 @@ int preprocess (const char *filename) {
             
         /*print_ident:*/
             
-            if (at_bol) {
+            temp = line - 1;
+            
+            while (*temp == ' ') {
+                temp--;
+            }
+            
+            /*report_at (__FILE__, __LINE__, REPORT_FATAL_ERROR, "%s", temp);*/
+            
+            if (at_bol && *temp != '}') {
                 fprintf (state->ofp, "%*s%s", ident, "", tok->ident);
             } else {
                 fprintf (state->ofp, "%s", tok->ident);
             }
             
-            at_bol = 0;
+            if (tok->kind == TOK_SEMI) {
+            
+                at_bol = 1;
+                line = skip_whitespace (line);
+                
+                fprintf (state->ofp, "\n");
+            
+            } else {
+                at_bol = 0;
+            }
         
         }
     
