@@ -836,16 +836,20 @@ int preprocess (const char *filename) {
             
             if (tok->kind == TOK_IDENT) {
             
-                struct cond_special *se;
+                struct cond_special *cse;
                 struct hashtab_name *key;
                 
                 if ((key = hashtab_alloc_name (tok->ident))) {
                 
-                    if ((se = hashtab_get (&hashtab_cond_special, key))) {
+                    if ((cse = hashtab_get (&hashtab_cond_special, key))) {
                     
                         free (key);
                         
-                        enabled = (se->handler) (&temp);
+                        if (code_started) {
+                            fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number () + 1, filename);
+                        }
+                        
+                        enabled = (cse->handler) (&temp);
                         continue;
                     
                     }
