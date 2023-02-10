@@ -1,0 +1,22 @@
+#******************************************************************************
+# @file             Makefile.pdw
+#******************************************************************************
+AS=aswin
+CC=gccwin
+LD=ldwin
+
+COPTS=-S -O2 -fno-common -ansi -I. -I../pdos/pdpclib -D__WIN32__ -D__NOBIVA__ -D__PDOS__
+COBJ=cpp.o cstr.o eval.o hashtab.o lib.o ll.o main.o macro.o report.o token.o vector.o
+
+all: clean xcc.exe
+
+xcc.exe: $(COBJ)
+  $(LD) -s -o xcc.exe ../pdos/pdpclib/w32start.o $(COBJ) ../pdos/pdpclib/msvcrt.a
+
+.c.o:
+  $(CC) $(COPTS) $<
+  $(AS) -o $@ $*.s
+  rm -f $*.s
+
+clean:
+  rm -f *.o xcc.exe

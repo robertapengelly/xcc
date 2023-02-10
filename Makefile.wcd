@@ -1,0 +1,21 @@
+#******************************************************************************
+# @file             Makefile.wcd
+# 
+# Produce MSDOS executables links with PDPCLIB created by makefile.wcd
+#******************************************************************************
+CC=wcl
+COPTS=-ecc -q -w -c -ml -zl -D__MSDOS__ -D__PDOS__ -fpi87 -s -zdp -zu -I. -I..\pdos\pdpclib
+
+all: clean xcc.exe
+
+xcc.exe: cpp.obj cstr.obj eval.obj hashtab.obj lib.obj ll.obj main.obj macro.obj report.obj token.obj vector.obj
+  wlink File as.obj Name xcc.exe Form dos Library temp.lib,..\pdos\pdpclib\watcom.lib Option quiet,map
+
+.c.obj:
+  $(CC) $(COPTS) $<
+  wlib -b -q temp +$*.obj
+
+clean:
+  rm -f *.obj
+  rm -f xcc.exe
+  rm -f temp.lib

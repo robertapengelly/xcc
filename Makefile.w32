@@ -1,0 +1,19 @@
+#******************************************************************************
+# @file             Makefile.w32
+#******************************************************************************
+SRCDIR              ?=  $(CURDIR)
+VPATH               :=  $(SRCDIR)
+
+CC                  :=  gcc
+CFLAGS              :=  -D_FILE_OFFSET_BITS=64 -Wall -Werror -Wextra -std=c90
+
+CSRC                :=  cpp.c cstr.c eval.c hashtab.c lib.c ll.c main.c macro.c report.c token.c vector.c
+
+all: xcc.exe
+
+clean:
+	if exist xcc.exe ( del /q xcc.exe )
+	if exist xcc ( del /q xcc )
+
+xcc.exe: $(CSRC)
+	$(CC) $(CFLAGS) -o $@ $^
