@@ -796,7 +796,7 @@ int preprocess (const char *filename) {
     unsigned long newlines;
     char *line, *line_end;
     
-    int ident = 0, code_started = 0, at_bol, enabled = 1;
+    int ident = 0, code_started = 0, at_bol, enabled = 1, nested = 0;
     set_filename_and_line_number (filename, 0);
     
     if ((load_line_internal_data = load_line_create_internal_data (&new_line_number)) == NULL) {
@@ -823,11 +823,13 @@ int preprocess (const char *filename) {
     }
     
     /*
+     * fprintf (state->ofp, "# 1 \"%s\"\n", filename);
+     * fprintf (state->ofp, "# 1 \"<built-in>\"\n");
+     * fprintf (state->ofp, "# 1 \"<command-line>\"\n");
+     */
+    
     fprintf (state->ofp, "# 1 \"%s\"\n", filename);
-    fprintf (state->ofp, "# 1 \"<built-in>\"\n");
-    fprintf (state->ofp, "# 1 \"<command-line>\"\n");
-    fprintf (state->ofp, "# 1 \"%s\"\n", filename);
-    */
+    
     while (!load_line (&line, &line_end, &newlines, fp, &load_line_internal_data)) {
     
         start_p = (line = skip_whitespace (line));
@@ -891,8 +893,9 @@ int preprocess (const char *filename) {
                 }
                 
                 ident += 4;
-                fprintf (state->ofp, "\n");
+                nested++;
                 
+                fprintf (state->ofp, "\n");
                 line = skip_whitespace (line);
                 
                 if (code_started) {
@@ -933,8 +936,16 @@ int preprocess (const char *filename) {
                     ident -= 4;
                 }
                 
+                nested--;
+                
                 if (code_started) {
-                    fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number (), filename);
+                
+                    if (nested) {
+                        fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number (), filename);
+                    } else {
+                        fprintf (state->ofp, "# %lu \"%s\"\n", get_line_number () - 1, filename);
+                    }
+                
                 }
                 
                 if (at_bol) {
@@ -1063,7 +1074,9 @@ int preprocess (const char *filename) {
                 at_bol = 1;
                 line = skip_whitespace (line);
                 
-                fprintf (state->ofp, "\n");
+                if (*line != '\n') {
+                    fprintf (state->ofp, "\n");
+                }
             
             } else {
                 at_bol = 0;

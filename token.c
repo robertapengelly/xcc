@@ -335,7 +335,7 @@ static struct punct punct_table[] = {
     {   "&&",       TOK_ANDAND      },
     {   "||",       TOK_OROR        },
     
-    {   "*",        TOK_MUL         },
+    {   "*",        TOK_STAR        },
     {   "/",        TOK_DIV         },
     {   "&",        TOK_AND         },
     {   "%",        TOK_MOD         },
@@ -346,8 +346,8 @@ static struct punct punct_table[] = {
     {   "&",        TOK_AND         },
     {   "^",        TOK_XOR         },
     {   "|",        TOK_OR          },
-    {   "?",        TOK_THEN        },
-    {   ":",        TOK_ELSE        },
+    {   "?",        TOK_QUESTION    },
+    {   ":",        TOK_COLON       },
     
     {   "!",        TOK_NOT         },
     {   "#",        TOK_HASH        },

@@ -313,7 +313,7 @@ static int operator_precedence (enum token_kind kind) {
 
     switch (kind) {
     
-        case TOK_MUL:   case TOK_DIV:   case TOK_MOD:
+        case TOK_STAR:  case TOK_DIV:   case TOK_MOD:
         
             return 3;
         
@@ -349,7 +349,7 @@ static int operator_precedence (enum token_kind kind) {
         
             return 12;
         
-        case TOK_THEN:
+        case TOK_QUESTION:
         
             return 13;
         
@@ -389,14 +389,14 @@ static int eval_expr (char *start_p, char **pp, int lhs, int outer_prec) {
         
         }
         
-        if (op == TOK_THEN) {
+        if (op == TOK_QUESTION) {
         
             char *start = *pp - tok->len;
             
             l = eval_unary (start_p, pp);
             l = eval_expr (start_p, pp, l, 14);
             
-            if (tok->kind != TOK_ELSE) {
+            if (tok->kind != TOK_COLON) {
             
                 report_line_at (get_filename (), get_line_number (), REPORT_ERROR, start_p, start, "'?' without following ':'");
                 
@@ -435,7 +435,7 @@ static int eval_expr (char *start_p, char **pp, int lhs, int outer_prec) {
         
         switch (op) {
         
-            case TOK_MUL:
+            case TOK_STAR:
             
                 lhs *= rhs;
                 break;
